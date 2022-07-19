@@ -1,0 +1,20 @@
+BEGIN
+
+
+if(new.CFOP in('1.556','2.556')and new.EMPRESA = 1) then
+SET NEW.BASEDECALCULO = 0;
+SET NEW.ICMS = 0;
+SET NEW.ALIQUOTA = 0;
+end if;
+
+if(
+	(SELECT l.ID_TIPOOPERACAO  FROM lventradas l LEFT 
+	JOIN produtos_notaentrada p ON l.PRIMARIA = new.PRIMARIA 
+	WHERE l.EMPRESA = 1 and p.ID_PRODUTO = new.ID_PRODUTO limit 1) = 66
+	) then
+	
+		SET NEW.BASEDECALCULO = 0;
+		SET NEW.ICMS = 0;
+		SET NEW.ALIQUOTA = 0;
+end if;
+END
