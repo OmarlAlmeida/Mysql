@@ -1,0 +1,65 @@
+SELECT EMISSAO, DATA_HORA_VENDA, CAIXA, OPERADOR, CUPOM, ABREVIA, VALOR FROM (
+select 
+	a.data as emissao, 
+	a.DATA_HORA_VENDA,
+	a.caixa, 
+	(select o.NOME from operadores o where o.ID_USUARIO = a.operador and o.ID_EMPRESA = 1) as operador,
+	CONCAT(A.CCF_GNF, ' -', a.cupom) AS CUPOM,
+	a.finalizadora as abrevia, 
+	valor as VALOR  
+from totais_por_finalizadora a
+where
+a.id_empresa = 1     
+and a.data between(:datainicial) and (:datafinal)
+and operacao = 'E'
+-- order by a.data, a.CAIXA, a.OPERADOR, A.finalizadora, a.DATA_HORA_VENDA, A.CCF_GNF
+
+UNION ALL
+
+select 
+	a.data as emissao, 
+	a.DATA_HORA_VENDA,
+	a.caixa, 
+	(select o.NOME from operadores o where o.ID_USUARIO = a.operador and o.ID_EMPRESA = 1) as operador,
+	CONCAT(A.CCF_GNF, ' SU', a.cupom) AS CUPOM,
+	a.finalizadora as abrevia, 
+	valor as VALOR  
+from totais_por_finalizadora a
+where
+a.id_empresa = 1     
+and a.data between(:datainicial) and (:datafinal)
+and operacao = 'F'
+-- order by a.data, a.CAIXA, a.OPERADOR, A.finalizadora, a.DATA_HORA_VENDA, A.CCF_GNF
+UNION ALL
+
+select 
+	a.data as emissao, 
+	a.DATA_HORA_VENDA,
+	a.caixa, 
+	(select o.NOME from operadores o where o.ID_USUARIO = a.operador and o.ID_EMPRESA = 1) as operador,
+	CONCAT(A.CCF_GNF, ' SA', a.cupom) AS CUPOM,
+	a.finalizadora as abrevia, 
+	valor*-1 as VALOR  
+from totais_por_finalizadora a
+where
+a.id_empresa = 1     
+and a.data between(:datainicial) and (:datafinal)
+and operacao = 'S'
+
+UNION ALL
+
+select 
+	a.data as emissao, 
+	a.DATA_HORA_VENDA,
+	a.caixa, 
+	(select o.NOME from operadores o where o.ID_USUARIO = a.operador and o.ID_EMPRESA = 1) as operador,
+	CONCAT(A.CCF_GNF, ' CA', a.cupom) AS CUPOM,
+	a.finalizadora as abrevia, 
+	valor*0 as VALOR  
+from totais_por_finalizadora a
+where
+a.id_empresa = 1     
+and a.data between(:datainicial) and (:datafinal)
+and operacao = 'C'
+) d
+order by d.emissao, d.CAIXA, d.OPERADOR, d.abrevia, d.DATA_HORA_VENDA, d.cupom
